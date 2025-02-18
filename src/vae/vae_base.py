@@ -83,7 +83,7 @@ class BaseVariationalAutoencoder(nn.Module, ABC):
     def forward(self, X):
         z_mean, z_log_var, z = self.encoder(X)
         x_decoded = self.decoder(z_mean)
-        return x_decoded
+        return x_decoded, z_mean, z_log_var
     
     def predict(self, X):
         self.eval()
