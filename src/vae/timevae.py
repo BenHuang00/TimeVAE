@@ -195,18 +195,24 @@ class TimeVAEDecoder(nn.Module):
         self.encoder_last_dense_dim = encoder_last_dense_dim
         self.level_model = LevelModel(self.latent_dim, self.feat_dim, self.seq_len)
 
+        if self.trend_poly is not None and self.trend_poly > 0:
+            self.trend_layer = TrendLayer(self.seq_len, self.feat_dim, self.latent_dim, self.trend_poly)
+
+        if self.custom_seas is not None and len(self.custom_seas) > 0:
+            self.seasonal_layer = SeasonalLayer(self.seq_len, self.feat_dim, self.latent_dim, self.custom_seas)
+
         if use_residual_conn:
             self.residual_conn = ResidualConnection(seq_len, feat_dim, hidden_layer_sizes, latent_dim, encoder_last_dense_dim)
 
     def forward(self, z):
         outputs = self.level_model(z)
         if self.trend_poly is not None and self.trend_poly > 0:
-            trend_vals = TrendLayer(self.seq_len, self.feat_dim, self.latent_dim, self.trend_poly)(z)
+            trend_vals = self.trend_layer(z)
             outputs += trend_vals
 
         # custom seasons
         if self.custom_seas is not None and len(self.custom_seas) > 0:
-            cust_seas_vals = SeasonalLayer(self.seq_len, self.feat_dim, self.latent_dim, self.custom_seas)(z)
+            cust_seas_vals = self.seasonal_layer(z)
             outputs += cust_seas_vals
 
         if self.use_residual_conn:
