@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import joblib
 
-from vae.vae_base import BaseVariationalAutoencoder, Sampling
+from .vae_base import BaseVariationalAutoencoder, Sampling
 
 
 class TrendLayer(nn.Module):
